@@ -28,7 +28,6 @@ Node* Parser::operator () (char* expression)
   size_t size = strlen(expression);
   Expression_ = new char [size + 1];
   strcpy(Expression_, expression);
-  //printf("You entered: %s\n", Expression_);
   Node* res = G();
   delete [] Expression_;
   return res;
