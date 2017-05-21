@@ -1,0 +1,171 @@
+#ifdef OPERATORS
+
+OPERATOR(+, ADD,
+  {
+  Node* sum = new Node;
+  sum->setdata("o:+");
+  sum->setleft(d(cur->left()));
+  sum->setright(d(cur->right()));
+  return sum;
+  })
+
+OPERATOR(-, SUB,
+  {
+  Node* sum = new Node;
+  sum->setdata("o:-");
+  sum->setleft(d(cur->left()));
+  sum->setright(d(cur->right()));
+  return sum;
+  })
+
+OPERATOR(*, MUL,
+  {
+  Node* add = new Node;
+  Node* mul1 = new Node;
+  Node* mul2 = new Node;
+  Node* f;
+  Node* g;
+
+  add->setdata("o:+");
+  mul1->setdata("o:*");
+  mul2->setdata("o:*");
+  f = nodecopy(cur->left());
+  g = nodecopy(cur->right());
+  mul1->setleft(f);
+  mul1->setright(d(cur->right()));
+  mul2->setleft(d(cur->left()));
+  mul2->setright(g);
+  add->setleft(mul1);
+  add->setright(mul2);
+  return add;
+  })
+
+OPERATOR(/, DIV,
+  {
+  Node* div = new Node;
+  Node* sub = new Node;
+  Node* mul1 = new Node;
+  Node* mul2 = new Node;
+  Node* mul3 = new Node;
+  Node* f = nodecopy(cur->left());
+  Node* g = nodecopy(cur->right());
+  Node* g1 = nodecopy(cur->right());
+  Node* g2 = nodecopy(cur->right());
+
+  mul1->setdata("o:*");
+  mul1->setleft(d(cur->left()));
+  mul1->setright(g);
+  
+  mul2->setdata("o:*");
+  mul2->setleft(f);
+  mul2->setright(d(cur->right()));
+  
+  mul3->setdata("o:*");
+  mul3->setleft(g1);
+  mul3->setright(g2);
+  
+  sub->setdata("o:-");
+  sub->setleft(mul1);
+  sub->setright(mul2);
+  
+  div->setdata("o:/");
+  div->setleft(sub);
+  div->setright(mul3);
+  
+  return div;
+  })
+
+OPERATOR(sin, SIN, 
+  {
+  Node* mul = new Node;
+  Node* cos = new Node;
+  Node* f = nodecopy(cur->right());
+  cos->setdata("o:cos");
+  cos->setright(f);
+  mul->setdata("o:*");
+  mul->setleft(cos);
+  mul->setright(d(cur->right()));
+  return mul;
+  })
+
+OPERATOR(cos, COS,
+  {
+  Node* sub = new Node;
+  Node* zero = new Node;
+  Node* mul = new Node;
+  Node* sin = new Node;
+  Node* f = nodecopy(cur->right());
+  sin->setdata("o:sin");
+  sin->setright(f);
+  mul->setdata("o:*");
+  mul->setleft(sin);
+  mul->setright(d(cur->right()));
+  zero->setdata("c:0");
+  sub->setdata("o:-");
+  sub->setleft(zero);
+  sub->setright(mul);
+  return sub;
+  })
+
+OPERATOR(^, REAL_EXP,
+  {
+  Node* mul1 = new Node;
+  Node* mul2 = new Node;
+  Node* C = new Node;
+  Node* exp = new Node;
+  Node* C2 = new Node;
+  double exponent = atof(cur->right()->data() + 2);
+
+  char strexp[DOUBLE_DIGITS];
+  char str[DOUBLE_DIGITS + 2];                                   //CHECK!
+  sprintf(strexp, "%f", exponent);                               
+  
+  strcpy(str, "c:");
+  strcat(str, strexp);
+  C->setdata(str);
+  
+  sprintf(strexp, "%f", exponent - 1);                               
+  strcpy(str, "c:");
+  strcat(str, strexp);
+
+  exp->setdata("o:^");
+  exp->setleft(nodecopy(cur->left()));
+
+  C2->setdata(str);
+  exp->setright(C2);
+  mul2->setdata("o:*");
+  mul2->setleft(C);
+  mul2->setright(exp);
+  mul1->setdata("o:*");
+  mul1->setleft(mul2);
+  mul1->setright(d(cur->left()));
+  return mul1;
+  })
+
+OPERATOR(ln, LN,
+  {
+  Node* mul = new Node;
+  Node* div = new Node;
+  Node* one = new Node;
+  one->setdata("c:1");
+  div->setdata("o:/");
+  div->setleft(one);
+  div->setright(nodecopy(cur->right()));
+  mul->setdata("o:*");
+  mul->setleft(div);
+  mul->setright(d(cur->right()));
+  return mul;
+  })
+
+OPERATOR(exp, EXP,
+  {
+  Node* mul = new Node;
+  mul->setdata("o:*");
+  mul->setleft(nodecopy(cur));
+  mul->setright(d(cur->right()));
+  return mul;
+  })
+
+#endif
+
+
